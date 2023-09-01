@@ -68,31 +68,17 @@ export type Square =
   | "h1";
 
 export type Piece =
-  | "wP"
-  | "wB"
-  | "wN"
-  | "wR"
-  | "wQ"
+  | "wM"
   | "wK"
-  | "bP"
-  | "bB"
-  | "bN"
-  | "bR"
-  | "bQ"
+  | "bM"
   | "bK";
 
 export type BoardPosition = { [square in Square]?: Piece };
 
 export type PromotionPieceOption =
-  | "wQ"
-  | "wR"
-  | "wN"
-  | "wB"
-  | "bQ"
-  | "bR"
-  | "bN"
-  | "bB";
-export type PromotionStyle = "default" | "vertical" | "modal";
+  | "wM"
+  | "bM";
+export type PromotionStyle = "default";
 
 export type CustomSquareProps = {
   children: ReactNode;

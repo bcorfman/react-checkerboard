@@ -15,7 +15,7 @@ export function Notation({ row, col }: NotationProps) {
   } = useCheckerboard();
 
   const whiteColor = customLightSquareStyle.backgroundColor;
-  const blackColor = customDarkSquareStyle.backgroundColor;
+  //const blackColor = customDarkSquareStyle.backgroundColor;
 
   const isRow = col === 0;
   const isColumn = row === 7;
@@ -40,7 +40,6 @@ export function Notation({ row, col }: NotationProps) {
             ...numericStyle(boardWidth),
           }}
         >
-          {getRow()}
         </div>
         <div
           style={{
@@ -50,56 +49,14 @@ export function Notation({ row, col }: NotationProps) {
             ...alphaStyle(boardWidth),
           }}
         >
-          {getColumn()}
         </div>
       </>
     );
   }
 
-  function renderLetters() {
-    return (
-      <div
-        style={{
-          userSelect: "none",
-          zIndex: 3,
-          position: "absolute",
-          ...{ color: col % 2 !== 0 ? blackColor : whiteColor },
-          ...alphaStyle(boardWidth),
-        }}
-      >
-        {getColumn()}
-      </div>
-    );
-  }
-
-  function renderNumbers() {
-    return (
-      <div
-        style={{
-          userSelect: "none",
-          zIndex: 3,
-          position: "absolute",
-          ...(boardOrientation === "black"
-            ? { color: row % 2 === 0 ? blackColor : whiteColor }
-            : { color: row % 2 === 0 ? blackColor : whiteColor }),
-          ...numericStyle(boardWidth),
-        }}
-      >
-        {getRow()}
-      </div>
-    );
-  }
-
+  
   if (isBottomLeftSquare) {
     return renderBottomLeft();
-  }
-
-  if (isColumn) {
-    return renderLetters();
-  }
-
-  if (isRow) {
-    return renderNumbers();
   }
 
   return null;

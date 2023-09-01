@@ -142,8 +142,8 @@ export const CheckerboardProvider = forwardRef(
       onPieceDragEnd = () => {},
       onPieceDrop = () => true,
       onPromotionCheck = (sourceSquare, targetSquare, piece) => {
-        return (((piece === "wP" && sourceSquare[1] === "7" && targetSquare[1] === "8") ||
-                (piece === "bP" && sourceSquare[1] === "2" && targetSquare[1] === "1")) &&
+        return (((piece === "wM" && sourceSquare[1] === "7" && targetSquare[1] === "8") ||
+                (piece === "bM" && sourceSquare[1] === "2" && targetSquare[1] === "1")) &&
                 Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <= 1)
       },
       onPromotionPieceSelect,
