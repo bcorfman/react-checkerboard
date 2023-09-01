@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useRef, useState, useMemo } from "react";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 
 import { Checkerboard, ClearPremoves } from "../src";
 import { CustomSquareProps, Square } from "../src/checkerboard/types";
@@ -34,9 +34,9 @@ const boardWrapper = {
 export default {
   title: "Example/Checkerboard",
   component: Checkerboard,
-} as ComponentMeta<typeof Checkerboard>;
+} as Meta<typeof Checkerboard>;
 
-const Template: ComponentStory<typeof Checkerboard> = (args) => (
+const Template: StoryFn<typeof Checkerboard> = (args) => (
   <div style={boardWrapper}>
     <Checkerboard {...args} />
   </div>
