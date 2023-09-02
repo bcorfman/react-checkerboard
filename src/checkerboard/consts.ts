@@ -14,7 +14,7 @@ export const START_POSITION_OBJECT: BoardPosition = {
   b6: "wM",
   d6: "wM",
   f6: "wM",
-  h6: "wM",
+  h6: "wK",
   a1: "bM",
   c1: "bM",
   e1: "bM",
@@ -26,7 +26,7 @@ export const START_POSITION_OBJECT: BoardPosition = {
   a3: "bM",
   c3: "bM",
   e3: "bM",
-  g3: "bM",
+  g3: "bK",
 };
 
 export const WHITE_COLUMN_VALUES: { [col in string]: number } = {
