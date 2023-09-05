@@ -193,34 +193,3 @@ const size = (width: number) => ({
   width: width / 8,
   height: width / 8,
 });
-
-const borderRadius = (
-  square: Sq,
-  boardOrientation: BoardOrientation,
-  customBoardStyle?: Record<string, string | number>
-) => {
-  if (!customBoardStyle?.borderRadius) return {};
-
-  if (square === "a1") {
-    return boardOrientation === "white"
-      ? { borderBottomLeftRadius: customBoardStyle.borderRadius }
-      : { borderTopRightRadius: customBoardStyle.borderRadius };
-  }
-  if (square === "a8") {
-    return boardOrientation === "white"
-      ? { borderTopLeftRadius: customBoardStyle.borderRadius }
-      : { borderBottomRightRadius: customBoardStyle.borderRadius };
-  }
-  if (square === "h1") {
-    return boardOrientation === "white"
-      ? { borderBottomRightRadius: customBoardStyle.borderRadius }
-      : { borderTopLeftRadius: customBoardStyle.borderRadius };
-  }
-  if (square === "h8") {
-    return boardOrientation === "white"
-      ? { borderTopRightRadius: customBoardStyle.borderRadius }
-      : { borderBottomLeftRadius: customBoardStyle.borderRadius };
-  }
-
-  return {};
-};

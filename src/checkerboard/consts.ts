@@ -1,32 +1,41 @@
-import { BoardPosition } from "./types";
+import { BoardPosition, Square } from "./types";
 
 export const COLUMNS = "abcdefgh".split("");
 
 export const START_POSITION_OBJECT: BoardPosition = {
-  b8: "wM",
-  d8: "wM",
-  f8: "wM",
-  h8: "wM",
-  a7: "wM",
-  c7: "wM",
-  e7: "wM",
-  g7: "wM",
-  b6: "wM",
-  d6: "wM",
-  f6: "wM",
-  h6: "wK",
-  a1: "bM",
-  c1: "bM",
-  e1: "bM",
-  g1: "bM",
-  b2: "bM",
-  d2: "bM",
-  f2: "bM",
-  h2: "bM",
-  a3: "bM",
-  c3: "bM",
-  e3: "bM",
-  g3: "bK",
+  1: "bM",
+  2: "bM",
+  3: "bM",
+  4: "bM",
+  5: "bM",
+  6: "bM",
+  7: "bM",
+  8: "bM",
+  9: "bM",
+  10: "bM",
+  11: "bM",
+  12: "bK",
+  21: "wM",
+  22: "wM",
+  23: "wM",
+  24: "wM",
+  25: "wM",
+  26: "wM",
+  27: "wM",
+  28: "wM",
+  29: "wM",
+  30: "wM",
+  31: "wM",
+  32: "wK",
+};
+
+export const POSITION_MAP: { [square in Square]: string} = {
+  "1": "b8", "2": "d8", "3": "f8", "4": "h8",
+  "5": "a7", "6": "c7", "7": "e7", "8": "g7",
+  "9": "b6", "10": "d6", "11": "f6", "12": "h6",
+  "21": "b3", "22": "d3", "23": "f3", "24": "h3",
+  "25": "a2", "26": "c2", "27": "e2", "28": "g2",
+  "29": "b1", "30": "d1", "31": "f1", "32": "h6",
 };
 
 export const WHITE_COLUMN_VALUES: { [col in string]: number } = {
