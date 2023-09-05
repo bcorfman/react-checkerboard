@@ -6,6 +6,7 @@ import {
   START_POSITION_OBJECT,
   WHITE_COLUMN_VALUES,
   WHITE_ROWS,
+  POSITION_MAP
  } from "./consts";
 
 /**
@@ -19,13 +20,14 @@ export function getRelativeCoords(
   x: number;
   y: number;
 } {
+  const csq = POSITION_MAP[square];
   const squareWidth = boardWidth / 8;
   const columns =
     boardOrientation === "white" ? WHITE_COLUMN_VALUES : BLACK_COLUMN_VALUES;
   const rows = boardOrientation === "white" ? WHITE_ROWS : BLACK_ROWS;
 
-  const x = columns[square[0]] * squareWidth + squareWidth / 2;
-  const y = rows[parseInt(square[1], 10) - 1] * squareWidth + squareWidth / 2;
+  const x = columns[csq[0]] * squareWidth + squareWidth / 2;
+  const y = rows[parseInt(csq[1], 10) - 1] * squareWidth + squareWidth / 2;
   return { x, y };
 }
 
@@ -34,23 +36,18 @@ export function getRelativeCoords(
  */
 export function isDifferentFromStart(newPosition: BoardPosition): boolean {
   let isDifferent = false;
-
-  (
-    Object.keys(START_POSITION_OBJECT) as Array<
-      keyof typeof START_POSITION_OBJECT
-    >
-  ).forEach((square) => {
-    if (newPosition[square] !== START_POSITION_OBJECT[square])
-      isDifferent = true;
-  });
-
-  (Object.keys(newPosition) as Array<keyof typeof newPosition>).forEach(
-    (square) => {
-      if (START_POSITION_OBJECT[square] !== newPosition[square])
-        isDifferent = true;
+  for (const [key, _] of Object.entries(START_POSITION_OBJECT)) {
+    if (typeof key === "number" && newPosition[key] !== START_POSITION_OBJECT[key]) {
+      isDifferent = true;      
     }
-  );
-
+  }
+  
+  for (const [key, _] of Object.entries(newPosition)) {
+    if (typeof key === "number" && START_POSITION_OBJECT[key] !== newPosition[key]) {
+      isDifferent = true;      
+    }
+  }
+  
   return isDifferent;
 }
 
@@ -70,20 +67,18 @@ export function getPositionDifferences(
   };
 
   // removed from current
-  (Object.keys(currentPosition) as Array<keyof typeof currentPosition>).forEach(
-    (square) => {
-      if (newPosition[square] !== currentPosition[square])
-        difference.removed[square] = currentPosition[square];
+  for (const [key, _] of Object.entries(currentPosition)) {
+    if (typeof key === "number" && newPosition[key] !== currentPosition[key]) {
+        difference.removed[key] = currentPosition[key];
     }
-  );
+  }
 
   // added from new
-  (Object.keys(newPosition) as Array<keyof typeof newPosition>).forEach(
-    (square) => {
-      if (currentPosition[square] !== newPosition[square])
-        difference.added[square] = newPosition[square];
+  for (const [key, _] of Object.entries(newPosition)) {
+    if (typeof key === "number" && currentPosition[key] !== newPosition[key]) {
+        difference.added[key] = newPosition[key];
     }
-  );
+  }
 
   return difference;
 }
