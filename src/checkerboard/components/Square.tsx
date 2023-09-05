@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useRef } from "react";
 import { useDrop } from "react-dnd";
 
 import { useCheckerboard } from "../context/checkerboard-context";
-import { BoardOrientation, Coords, Piece, Square as Sq } from "../types";
+import { Coords, Piece, Square as Sq } from "../types";
 
 type SquareProps = {
   children: ReactNode;
@@ -21,13 +21,11 @@ export function Square({
 }: SquareProps) {
   const squareRef = useRef<HTMLElement>(null);
   const {
-    autoPromoteToQueen,
     boardWidth,
     boardOrientation,
     clearArrows,
     currentPosition,
     currentRightClickDown,
-    customBoardStyle,
     customDarkSquareStyle,
     customDropSquareStyle,
     customLightSquareStyle,
@@ -44,13 +42,9 @@ export function Square({
     onMouseOutSquare,
     onMouseOverSquare,
     onPieceDrop,
-    onPromotionCheck,
     onRightClickDown,
     onRightClickUp,
     onSquareClick,
-    setPromoteFromSquare,
-    setPromoteToSquare,
-    setShowPromoteDialog,
   } = useCheckerboard();
 
   const [{ isOver }, drop] = useDrop(
@@ -71,17 +65,7 @@ export function Square({
   );
 
   function handleDrop(item: { piece: Piece; square: Sq; id: number }) {
-    if (onPromotionCheck(item.square, square, item.piece)) {
-      if (autoPromoteToQueen) {
-        handleSetPosition(item.square, square, item.piece[0] === "w" ? "wQ" : "bQ");
-      } else {
-        setPromoteFromSquare(item.square);
-        setPromoteToSquare(square);
-        setShowPromoteDialog(true);
-      }
-    } else {
       handleSetPosition(item.square, square, item.piece, true);
-    }
   }
 
   useEffect(() => {
@@ -92,7 +76,6 @@ export function Square({
   }, [boardWidth, boardOrientation]);
 
   const defaultSquareStyle = {
-    ...borderRadius(square, boardOrientation, customBoardStyle),
     ...(squareColor === "black"
       ? customDarkSquareStyle
       : customLightSquareStyle),
