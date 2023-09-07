@@ -168,6 +168,11 @@ export type CheckerboardProps = {
    */
   customArrowColor?: string;
   /**
+   * Custom board style object e.g. { borderRadius: '5px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.5 '}.
+   * @default {}
+   */
+  customBoardStyle?: Record<string, string | number>;
+  /**
    * Custom dark square style object.
    * @default { backgroundColor: "#B58863" }
    */
@@ -191,7 +196,7 @@ export type CheckerboardProps = {
    */
   customLightSquareStyle?: Record<string, string>;
   /**
-   * Custom pieces object where each key must match a corresponding checkers piece (wM, wK, bM, bK). The value of each piece is a function that takes in some optional arguments to use and must return JSX to render. e.g. { wK: ({ isDragging: boolean, squareWidth: number }) => jsx }.
+   * Custom pieces object where each key must match a corresponding checkers piece (wP, wB, wN, wR, wQ, wK, bP, bB, bN, bR, bQ, bK). The value of each piece is a function that takes in some optional arguments to use and must return JSX to render. e.g. { wK: ({ isDragging: boolean, squareWidth: number }) => jsx }.
    * @default {}
    */
   customPieces?: CustomPieces;
@@ -280,6 +285,22 @@ export type CheckerboardProps = {
     piece: Piece
   ) => boolean;
   /**
+   * User function that is run when piece is dropped. Must return whether the move results in a promotion or not.
+   * @default (sourceSquare, targetSquare, piece) => (((piece === "wP" && sourceSquare[1] === "7" && targetSquare[1] === "8") || 
+   *                                                  (piece === "bP" && sourceSquare[1] === "2" && targetSquare[1] === "1")) && 
+   *                                                  Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <= 1)
+   */
+  onPromotionCheck?: (
+    sourceSquare: Square,
+    targetSquare: Square,
+    piece: Piece
+  ) => boolean;
+  /**
+   * User function that is run when a promotion piece is selected. Must return whether the move was successful or not.
+   * @default () => true
+   */
+  onPromotionPieceSelect?: (piece?: PromotionPieceOption) => boolean;
+  /**
    * User function that is run when a square is clicked.
    * @default () => {}
    */
@@ -295,6 +316,16 @@ export type CheckerboardProps = {
    */
   position?: string | BoardPosition;
   /**
+   * Style of promotion dialog.
+   * @default default
+   */
+  promotionDialogVariant?: PromotionStyle;
+  /**
+   * The square to promote a piece to.
+   * @default null
+   */
+  promotionToSquare?: Square | null;
+  /**
    * RefObject that is sent as forwardRef to checkerboard.
    */
   ref?: RefObject<HTMLDivElement>;
@@ -304,8 +335,18 @@ export type CheckerboardProps = {
    */
   showBoardNotation?: boolean;
   /**
+   * Whether or not to show the promotion dialog.
+   * @default false
+   */
+  showPromotionDialog?: boolean;
+  /**
    * Whether or not to center dragged pieces on the mouse cursor.
    * @default true
    */
   snapToCursor?: boolean;
+  /**
+   * Whether or not to automatically promote pawn to queen
+   * @default false
+   */
+  autoPromoteToQueen?: boolean;
 };
