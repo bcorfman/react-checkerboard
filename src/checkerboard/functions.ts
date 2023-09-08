@@ -1,12 +1,12 @@
-import { BoardOrientation, BoardPosition, Piece, Square } from "./types";
-import {
+import { BoardOrientation, BoardPosition, Square, Piece } from "./types";
+import { 
   BLACK_COLUMN_VALUES,
   BLACK_ROWS,
   COLUMNS,
   START_POSITION_OBJECT,
   WHITE_COLUMN_VALUES,
-  WHITE_ROWS,
-} from "./consts";
+  WHITE_ROWS
+ } from "./consts";
 
 /**
  * Retrieves the coordinates at the centre of the requested square, relative to the top left of the board (0, 0).
