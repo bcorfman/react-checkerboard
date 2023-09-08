@@ -1,4 +1,5 @@
-import { COLUMNS } from "../consts";
+import { COLUMNS, SQUARE_MAP } from "../consts";
+import { Square } from "../types";
 import { useCheckerboard } from "../context/checkerboard-context";
 
 type NotationProps = {
@@ -15,11 +16,8 @@ export function Notation({ row, col }: NotationProps) {
   } = useCheckerboard();
 
   const whiteColor = customLightSquareStyle.backgroundColor;
-  //const blackColor = customDarkSquareStyle.backgroundColor;
-
-  const isRow = col === 0;
-  const isColumn = row === 7;
-  const isBottomLeftSquare = isRow && isColumn;
+  const blackColor = customDarkSquareStyle.backgroundColor;
+  const isDarkSquare = getColumn() + getRow() in SQUARE_MAP;
 
   function getRow() {
     return boardOrientation === "white" ? 8 - row : row + 1;
@@ -29,44 +27,36 @@ export function Notation({ row, col }: NotationProps) {
     return boardOrientation === "black" ? COLUMNS[7 - col] : COLUMNS[col];
   }
 
-  function renderBottomLeft() {
+  function getSquareNumber() {
+    const idx: string = getColumn() + getRow();
+    const num = SQUARE_MAP[idx as Square];
+    return num;
+  }
+
+  function renderNumber() {
     return (
-      <>
-        <div
-          style={{
-            zIndex: 3,
-            position: "absolute",
-            ...{ color: whiteColor },
-            ...numericStyle(boardWidth),
-          }}
-        >
-        </div>
-        <div
-          style={{
-            zIndex: 3,
-            position: "absolute",
-            ...{ color: whiteColor },
-            ...alphaStyle(boardWidth),
-          }}
-        >
-        </div>
-      </>
+      <div
+        style={{
+          userSelect: "none",
+          zIndex: 0,
+          position: "absolute",
+          ...(boardOrientation === "black"
+            ? { color: row % 2 === 0 ? whiteColor : whiteColor }
+            : { color: row % 2 === 0 ? whiteColor : whiteColor }),
+          ...numericStyle(boardWidth),
+        }}
+      >
+        {getSquareNumber()}
+      </div>
     );
   }
 
-  
-  if (isBottomLeftSquare) {
-    return renderBottomLeft();
+  if (isDarkSquare) {
+    return renderNumber();
   }
 
   return null;
 }
-
-const alphaStyle = (width: number) => ({
-  alignSelf: "flex-end",
-  paddingLeft: width / 8 - width / 48,
-  fontSize: width / 48,
-});
 
 const numericStyle = (width: number) => ({
   alignSelf: "flex-start",

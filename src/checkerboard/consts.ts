@@ -37,7 +37,7 @@ export const START_POSITION_OBJECT: BoardPosition = {
   "a1": "wM",
 };
 
-export const POSITION_MAP: Record<Square, CheckerSquare> = {
+export const SQUARE_MAP: Record<Square, CheckerSquare> = {
   "b8":  1, "d8":  2, "f8":  3, "h8":  4,
   "a7":  5, "c7":  6, "e7":  7, "g7":  8,
   "b6":  9, "d6": 10, "f6": 11, "h6": 12,
@@ -46,6 +46,17 @@ export const POSITION_MAP: Record<Square, CheckerSquare> = {
   "a3": 21, "c3": 22, "e3": 23, "g3": 24,
   "b2": 25, "d2": 26, "f2": 27, "h2": 28,
   "a1": 29, "c1": 30, "e1": 31, "g1": 32
+};
+
+export const CHECKER_SQUARE_MAP: Record<CheckerSquare, Square> = {
+   1: "b8",  2: "d8",  3: "f8",  4: "h8",
+   5: "a7",  6: "c7",  7: "e7",  8: "g7",
+   9: "b6", 10: "d6", 11: "f6", 12: "h6",
+  13: "a5", 14: "c5", 15: "e5", 16: "g5",
+  17: "b4", 18: "d4", 19: "f4", 20: "h4",
+  21: "a3", 22: "c3", 23: "e3", 24: "g3",
+  25: "b2", 26: "d2", 27: "f2", 28: "h2",
+  29: "a1", 30: "c1", 31: "e1", 32: "g1"
 };
 
 export const WHITE_COLUMN_VALUES: { [col in string]: number } = {
