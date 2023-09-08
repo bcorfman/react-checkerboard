@@ -1,11 +1,11 @@
-import { BoardOrientation, BoardPosition, Square } from "./types";
+import { BoardOrientation, BoardPosition, Square, Piece } from "./types";
 import { 
   BLACK_COLUMN_VALUES,
   BLACK_ROWS,
+  COLUMNS,
   START_POSITION_OBJECT,
   WHITE_COLUMN_VALUES,
-  WHITE_ROWS,
-  POSITION_MAP
+  WHITE_ROWS
  } from "./consts";
 
 /**
@@ -19,14 +19,13 @@ export function getRelativeCoords(
   x: number;
   y: number;
 } {
-  const csq = POSITION_MAP[square];
   const squareWidth = boardWidth / 8;
   const columns =
     boardOrientation === "white" ? WHITE_COLUMN_VALUES : BLACK_COLUMN_VALUES;
   const rows = boardOrientation === "white" ? WHITE_ROWS : BLACK_ROWS;
 
-  const x = columns[csq[0]] * squareWidth + squareWidth / 2;
-  const y = rows[parseInt(csq[1], 10) - 1] * squareWidth + squareWidth / 2;
+  const x = columns[square[0]] * squareWidth + squareWidth / 2;
+  const y = rows[parseInt(square[1], 10) - 1] * squareWidth + squareWidth / 2;
   return { x, y };
 }
 
@@ -35,18 +34,23 @@ export function getRelativeCoords(
  */
 export function isDifferentFromStart(newPosition: BoardPosition): boolean {
   let isDifferent = false;
-  for (const [key, _] of Object.entries(START_POSITION_OBJECT)) {
-    if (typeof key === "number" && newPosition[key] !== START_POSITION_OBJECT[key]) {
-      isDifferent = true;      
+
+  (
+    Object.keys(START_POSITION_OBJECT) as Array<
+      keyof typeof START_POSITION_OBJECT
+    >
+  ).forEach((square) => {
+    if (newPosition[square] !== START_POSITION_OBJECT[square])
+      isDifferent = true;
+  });
+
+  (Object.keys(newPosition) as Array<keyof typeof newPosition>).forEach(
+    (square) => {
+      if (START_POSITION_OBJECT[square] !== newPosition[square])
+        isDifferent = true;
     }
-  }
-  
-  for (const [key, _] of Object.entries(newPosition)) {
-    if (typeof key === "number" && START_POSITION_OBJECT[key] !== newPosition[key]) {
-      isDifferent = true;      
-    }
-  }
-  
+  );
+
   return isDifferent;
 }
 
@@ -66,18 +70,20 @@ export function getPositionDifferences(
   };
 
   // removed from current
-  for (const [key, _] of Object.entries(currentPosition)) {
-    if (typeof key === "number" && newPosition[key] !== currentPosition[key]) {
-        difference.removed[key] = currentPosition[key];
+  (Object.keys(currentPosition) as Array<keyof typeof currentPosition>).forEach(
+    (square) => {
+      if (newPosition[square] !== currentPosition[square])
+        difference.removed[square] = currentPosition[square];
     }
-  }
+  );
 
   // added from new
-  for (const [key, _] of Object.entries(newPosition)) {
-    if (typeof key === "number" && currentPosition[key] !== newPosition[key]) {
-        difference.added[key] = newPosition[key];
+  (Object.keys(newPosition) as Array<keyof typeof newPosition>).forEach(
+    (square) => {
+      if (currentPosition[square] !== newPosition[square])
+        difference.added[square] = newPosition[square];
     }
-  }
+  );
 
   return difference;
 }
@@ -104,30 +110,82 @@ export function convertPositionToObject(
  * Converts a fen string to a position object.
  */
 function fenToObj(fen: string): BoardPosition {
+  if (!isValidFen(fen)) return {};
+
   // cut off any move, castling, etc info from the end. we're only interested in position information
+  fen = fen.replace(/ .+$/, "");
+  const rows = fen.split("/");
   const position: BoardPosition = {};
-  const slots = fen.split(":");
-  const white_tokens = slots[1];
-  const black_tokens = slots[2];
-  for (let token in white_tokens.split(",")) {
-    if (token[0] === "W") {
-      const sq = parseInt(token.slice(1), 10);
-      position[sq as Square] = "wM";
+  let currentRow = 8;
+
+  for (let i = 0; i < 8; i++) {
+    const row = rows[i].split("");
+    let colIdx = 0;
+
+    // loop through each character in the FEN section
+    for (let j = 0; j < row.length; j++) {
+      // number / empty squares
+      if (row[j].search(/[1-8]/) !== -1) {
+        const numEmptySquares = parseInt(row[j], 10);
+        colIdx = colIdx + numEmptySquares;
+      } else {
+        // piece
+        const square = COLUMNS[colIdx] + currentRow;
+        position[square as Square] = fenToPieceCode(row[j]);
+        colIdx = colIdx + 1;
+      }
     }
-    else if (token[0] === "K") {
-      const sq = parseInt(token.slice(1), 10);
-      position[sq as Square] = "wK";
-    }     
-  }
-  for (let token in black_tokens.split(",")) {
-    if (token[0] === "B") {
-      const sq = parseInt(token.slice(1), 10);
-      position[sq as Square] = "bM";
-    }
-    else if (token[0] === "K") {
-      const sq = parseInt(token.slice(1), 10);
-      position[sq as Square] = "bK";
-    }     
+    currentRow = currentRow - 1;
   }
   return position;
+}
+
+/**
+ * Returns whether string is valid fen notation.
+ */
+function isValidFen(fen: string): boolean {
+  // cut off any move, castling, etc info from the end. we're only interested in position information
+  fen = fen.replace(/ .+$/, "");
+
+  // expand the empty square numbers to just 1s
+  fen = expandFenEmptySquares(fen);
+
+  // fen should be 8 sections separated by slashes
+  const chunks = fen.split("/");
+  if (chunks.length !== 8) return false;
+
+  // check each section
+  for (let i = 0; i < 8; i++) {
+    if (chunks[i].length !== 8 || chunks[i].search(/[^kqrnbpKQRNBP1]/) !== -1) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Expand out fen notation to countable characters for validation
+ */
+function expandFenEmptySquares(fen: string): string {
+  return fen
+    .replace(/8/g, "11111111")
+    .replace(/7/g, "1111111")
+    .replace(/6/g, "111111")
+    .replace(/5/g, "11111")
+    .replace(/4/g, "1111")
+    .replace(/3/g, "111")
+    .replace(/2/g, "11");
+}
+
+/**
+ * Convert fen piece code to camel case notation. e.g. bP, wK.
+ */
+function fenToPieceCode(piece: string): Piece {
+  // black piece
+  if (piece.toLowerCase() === piece) {
+    return ("b" + piece.toUpperCase()) as Piece;
+  }
+  // white piece
+  return ("w" + piece.toUpperCase()) as Piece;
 }
