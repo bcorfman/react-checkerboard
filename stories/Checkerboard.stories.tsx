@@ -1,8 +1,8 @@
 import React, { forwardRef, useEffect, useRef, useState, useMemo } from "react";
 import { Meta, StoryFn } from "@storybook/react";
-
 import { Checkerboard, ClearPremoves } from "../src";
 import { CustomSquareProps, Square } from "../src/checkerboard/types";
+import Engine from "../src/checkerboard/engine";
 
 // examples
 // multiboard example https://storybook.js.org/docs/react/writing-stories/stories-for-multiple-components
@@ -51,32 +51,24 @@ ConfigurableBoard.args = {
 ////////// PlayVsRandom ///////////
 ///////////////////////////////////
 export const PlayVsRandom = () => {
-  const [game, setGame] = useState(new Chess());
+  const [game, setGame] = useState(new Engine());
   const [currentTimeout, setCurrentTimeout] = useState<NodeJS.Timeout>();
 
-  function safeGameMutate(modify) {
-    setGame((g) => {
-      const update = { ...g };
-      modify(update);
-      return update;
-    });
-  }
-
   function makeRandomMove() {
-    const possibleMoves = game.moves();
-
+    const result = game.getCheckerboardState();
+    
     // exit if the game is over
-    if (game.game_over() || game.in_draw() || possibleMoves.length === 0)
-      return;
+    //if (game.game_over() || game.in_draw() || possibleMoves.length === 0)
+    //  return;
 
-    const randomIndex = Math.floor(Math.random() * possibleMoves.length);
+    /*const randomIndex = Math.floor(Math.random() * possibleMoves.length);
     safeGameMutate((game) => {
       game.move(possibleMoves[randomIndex]);
-    });
+    });*/
   }
 
   function onDrop(sourceSquare, targetSquare, piece) {
-    const gameCopy = { ...game };
+    /*const gameCopy = { ...game };
     const move = gameCopy.move({
       from: sourceSquare,
       to: targetSquare,
@@ -86,7 +78,7 @@ export const PlayVsRandom = () => {
 
     // illegal move
     if (move === null) return false;
-
+*/
     // store timeout so it can be cleared on undo/reset so computer doesn't execute move
     const newTimeout = setTimeout(makeRandomMove, 200);
     setCurrentTimeout(newTimeout);
@@ -97,7 +89,7 @@ export const PlayVsRandom = () => {
     <div style={boardWrapper}>
       <Checkerboard
         id="PlayVsRandom"
-        position={game.fen()}
+        position={game.getCheckerboardState()}
         onPieceDrop={onDrop}
         customBoardStyle={{
           borderRadius: "4px",
@@ -107,9 +99,9 @@ export const PlayVsRandom = () => {
       <button
         style={buttonStyle}
         onClick={() => {
-          safeGameMutate((game) => {
-            game.reset();
-          });
+          /*safeGameMutate((game) => {
+            axios({});
+          });*/
           clearTimeout(currentTimeout);
         }}
       >
@@ -118,9 +110,9 @@ export const PlayVsRandom = () => {
       <button
         style={buttonStyle}
         onClick={() => {
-          safeGameMutate((game) => {
+          /*safeGameMutate((game) => {
             game.undo();
-          });
+          });*/
           clearTimeout(currentTimeout);
         }}
       >
