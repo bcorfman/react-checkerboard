@@ -68,17 +68,17 @@ export const PlayVsRandom = () => {
   }
 
   function onDrop(sourceSquare, targetSquare, piece) {
-    /*const gameCopy = { ...game };
-    const move = gameCopy.move({
+    const gameCopy = { ...game };
+    /*const move = gameCopy.move({
       from: sourceSquare,
       to: targetSquare,
       promotion: piece[1].toLowerCase() ?? "q",
-    });
+    });*/
     setGame(gameCopy);
 
     // illegal move
-    if (move === null) return false;
-*/
+    //if (move === null) return false;
+
     // store timeout so it can be cleared on undo/reset so computer doesn't execute move
     const newTimeout = setTimeout(makeRandomMove, 200);
     setCurrentTimeout(newTimeout);
@@ -99,9 +99,9 @@ export const PlayVsRandom = () => {
       <button
         style={buttonStyle}
         onClick={() => {
-          /*safeGameMutate((game) => {
+          safeGameMutate((game) => {
             axios({});
-          });*/
+          });
           clearTimeout(currentTimeout);
         }}
       >
@@ -132,16 +132,15 @@ export const PlayVsComputer = () => {
     "Medium 🧐": 8,
     "Hard 😵": 18,
   };
-  const engine = useMemo(() => new Engine(), []);
-  const game = useMemo(() => new Chess(), []);
+  const game = useMemo(() => new Engine(), []);
 
   const [gamePosition, setGamePosition] = useState(game.fen());
   const [stockfishLevel, setStockfishLevel] = useState(2);
 
   function findBestMove() {
-    engine.evaluatePosition(game.fen(), stockfishLevel);
+    game.evaluatePosition(game.fen(), stockfishLevel);
 
-    engine.onMessage(({ bestMove }) => {
+    game.onMessage(({ bestMove }) => {
       if (bestMove) {
         // In latest chess.js versions you can just write ```game.move(bestMove)```
         game.move({
@@ -229,7 +228,7 @@ export const PlayVsComputer = () => {
 ////////// ClickToMove ///////////
 //////////////////////////////////
 export const ClickToMove = () => {
-  const [game, setGame] = useState(new Chess());
+  const [game, setGame] = useState(new Engine());
   const [moveFrom, setMoveFrom] = useState("");
   const [moveTo, setMoveTo] = useState<Square | null>(null);
   const [showPromotionDialog, setShowPromotionDialog] = useState(false);
