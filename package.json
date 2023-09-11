@@ -14,7 +14,7 @@
   "scripts": {
     "build": "rm -rf /dist && rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "storybook": "sb dev --no-open -p 6006",
+    "storybook": "sb dev --no-open -p 6007",
     "build-storybook": "sb build",
     "serve-storybook": "serve storybook-static"
   },

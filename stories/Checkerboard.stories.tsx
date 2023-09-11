@@ -2,6 +2,8 @@ import React, { forwardRef, useEffect, useRef, useState, useMemo } from "react";
 import { Meta, StoryFn } from "@storybook/react";
 import { Checkerboard, ClearPremoves } from "../src";
 import { CustomSquareProps, Square } from "../src/checkerboard/types";
+import { SQUARE_MAP } from "../src/checkerboard/consts";
+import { convertPositionToObject, toChessFen } from "../src/checkerboard/functions"; 
 import Engine from "../src/checkerboard/engine";
 
 // examples
@@ -51,33 +53,46 @@ ConfigurableBoard.args = {
 ////////// PlayVsRandom ///////////
 ///////////////////////////////////
 export const PlayVsRandom = () => {
-  const [game, setGame] = useState(new Engine());
+  const game = useMemo(() => new Engine(), []);
   const [currentTimeout, setCurrentTimeout] = useState<NodeJS.Timeout>();
+  const [gamePosition, setGamePosition] = useState(convertPositionToObject(toChessFen(game.getCheckerboardState()['fen'])));
+
+  function safeGameMutate(modify) {
+    setGamePosition((g) => {
+      const update = { ...g };
+      modify(update);
+      return update;
+    });
+  }
 
   function makeRandomMove() {
-    const result = game.getCheckerboardState();
-    
-    // exit if the game is over
-    //if (game.game_over() || game.in_draw() || possibleMoves.length === 0)
-    //  return;
+    const checkers_fen = game.getCheckerboardState()['fen'];
+    const legal_moves = game.legalMoves(checkers_fen);
+    const captures = legal_moves['captures'];
+    const moves = legal_moves['moves'];
+    const possibleMoves = captures.length > 0 ? captures: moves;
 
-    /*const randomIndex = Math.floor(Math.random() * possibleMoves.length);
+    // exit if the game is over
+    if (possibleMoves.length === 0)
+      return;
+
+    const randomIndex = Math.floor(Math.random() * possibleMoves.length);
     safeGameMutate((game) => {
-      game.move(possibleMoves[randomIndex]);
-    });*/
+      game.makeMove(possibleMoves[randomIndex]);
+    });
   }
 
   function onDrop(sourceSquare, targetSquare, piece) {
-    const gameCopy = { ...game };
-    /*const move = gameCopy.move({
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: piece[1].toLowerCase() ?? "q",
-    });*/
-    setGame(gameCopy);
+    const checkers_fen = game.makeMove(SQUARE_MAP[sourceSquare], SQUARE_MAP[targetSquare])['fen'];
+    setGamePosition(convertPositionToObject(toChessFen(checkers_fen)));
 
-    // illegal move
-    //if (move === null) return false;
+    // exit if the game is over
+    const legal_moves = game.legalMoves(checkers_fen);
+    const captures = legal_moves['captures'];
+    const moves = legal_moves['moves'];
+    const possibleMoves = captures.length > 0 ? captures: moves;
+    if (possibleMoves.length === 0)
+      return false;
 
     // store timeout so it can be cleared on undo/reset so computer doesn't execute move
     const newTimeout = setTimeout(makeRandomMove, 200);
@@ -89,7 +104,7 @@ export const PlayVsRandom = () => {
     <div style={boardWrapper}>
       <Checkerboard
         id="PlayVsRandom"
-        position={game.getCheckerboardState()}
+        position={convertPositionToObject(toChessFen(game.getCheckerboardState()['fen']))}
         onPieceDrop={onDrop}
         customBoardStyle={{
           borderRadius: "4px",
@@ -100,7 +115,8 @@ export const PlayVsRandom = () => {
         style={buttonStyle}
         onClick={() => {
           safeGameMutate((game) => {
-            axios({});
+            game.endSession();
+            game.createSession();
           });
           clearTimeout(currentTimeout);
         }}

@@ -1,11 +1,12 @@
-import { BoardOrientation, BoardPosition, Square, Piece } from "./types";
+import { BoardOrientation, BoardPosition, Square, Piece, CheckerSquare } from "./types";
 import { 
   BLACK_COLUMN_VALUES,
   BLACK_ROWS,
   COLUMNS,
   START_POSITION_OBJECT,
   WHITE_COLUMN_VALUES,
-  WHITE_ROWS
+  WHITE_ROWS,
+  CHECKER_SQUARE_MAP
  } from "./consts";
 
 /**
@@ -188,4 +189,61 @@ function fenToPieceCode(piece: string): Piece {
   }
   // white piece
   return ("w" + piece.toUpperCase()) as Piece;
+}
+
+export function toChessFen(checkersFen: string): string {
+  return objToFen(checkersFenToObj(checkersFen));
+}
+
+function objToFen(position: BoardPosition): string {
+  let fen: string = "";
+  for (let row in BLACK_ROWS) {
+    for (let col in COLUMNS) {
+      const loc = col + row.toString();
+      const piece = position[loc as Square];
+      if (piece === undefined) {
+        fen += "1";
+      } else if (piece === "bK") {
+        fen += "k";
+      } else if (piece === "bM") {
+        fen += "m"
+      } else if (piece === "wK") {
+        fen += "K";
+      } else if (piece === "wM") {
+        fen += "M";
+      }
+    }
+      fen += "/";
+  }
+  return fen;
+};
+
+function checkersFenToObj(checkers_fen: string): BoardPosition {
+  let position: BoardPosition = {};
+  const rows = checkers_fen.split(":");
+  const white_tokens = rows[1].slice(1);
+  const black_tokens = rows[2].slice(1);
+  
+  for (let token in white_tokens.split(",")) {
+    const piece = token[0];
+    const loc = parseInt(token.slice(1), 10);
+    if (piece === "W") {
+      position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] = "wM"; 
+    }
+    else if (piece === "K") {
+      position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] == "wK";
+    }
+  }
+
+  for (let token in black_tokens.split(",")) {
+    const piece = token[0];
+    const loc = parseInt(token.slice(1), 10);
+    if (piece === "B") {
+      position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] = "bM"; 
+    }
+    else if (piece === "K") {
+      position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] == "bK";
+    }
+  }
+  return position;
 }
