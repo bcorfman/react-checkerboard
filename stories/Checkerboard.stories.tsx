@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useRef, useState, useMemo } from "react";
 import { Meta, StoryFn } from "@storybook/react";
 import { Checkerboard, ClearPremoves } from "../src";
-import { CustomSquareProps, Square } from "../src/checkerboard/types";
+import { BoardPosition, CustomSquareProps, Square } from "../src/checkerboard/types";
 import { SQUARE_MAP } from "../src/checkerboard/consts";
 import { convertPositionToObject, toChessFen } from "../src/checkerboard/functions"; 
 import Engine from "../src/checkerboard/engine";
@@ -52,10 +52,11 @@ ConfigurableBoard.args = {
 ///////////////////////////////////
 ////////// PlayVsRandom ///////////
 ///////////////////////////////////
-export const PlayVsRandom = () => {
-  const game = useMemo(() => new Engine(), []);
+export const PlayVsRandom = async () => {
+  const game = new Engine();
+  const checkers_fen = await game.init();
   const [currentTimeout, setCurrentTimeout] = useState<NodeJS.Timeout>();
-  const [gamePosition, setGamePosition] = useState(convertPositionToObject(toChessFen(game.getCheckerboardState()['fen'])));
+  const [gamePosition, setGamePosition] = useState<BoardPosition>();(convertPositionToObject(toChessFen(checkers_fen)));
 
   function safeGameMutate(modify) {
     setGamePosition((g) => {
@@ -65,9 +66,9 @@ export const PlayVsRandom = () => {
     });
   }
 
-  function makeRandomMove() {
-    const checkers_fen = game.getCheckerboardState()['fen'];
-    const legal_moves = game.legalMoves(checkers_fen);
+  async function makeRandomMove() {
+    const checkers_fen = await game.getCheckerboardState()['fen'];
+    const legal_moves = await game.legalMoves(checkers_fen);
     const captures = legal_moves['captures'];
     const moves = legal_moves['moves'];
     const possibleMoves = captures.length > 0 ? captures: moves;
@@ -82,12 +83,12 @@ export const PlayVsRandom = () => {
     });
   }
 
-  function onDrop(sourceSquare, targetSquare, piece) {
-    const checkers_fen = game.makeMove(SQUARE_MAP[sourceSquare], SQUARE_MAP[targetSquare])['fen'];
+  async function onDrop(sourceSquare, targetSquare, piece) {
+    const checkers_fen = await game.makeMove(SQUARE_MAP[sourceSquare], SQUARE_MAP[targetSquare])['fen'];
     setGamePosition(convertPositionToObject(toChessFen(checkers_fen)));
 
     // exit if the game is over
-    const legal_moves = game.legalMoves(checkers_fen);
+    const legal_moves = await game.legalMoves(checkers_fen);
     const captures = legal_moves['captures'];
     const moves = legal_moves['moves'];
     const possibleMoves = captures.length > 0 ? captures: moves;

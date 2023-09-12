@@ -4,9 +4,8 @@ export default class Engine {
     isReady: boolean;
   
     constructor() {
-      console.log("constructor");
       this.isReady = false;
-      this.init();
+      console.log("constructor");
     }
     
     async init() {
@@ -27,8 +26,7 @@ export default class Engine {
       {
         const response = await axios.get('https://raven-1-j8079958.deta.app/cb_state',
                                          { headers: {"Access-Control-Allow-Origin": "*"}});
-        let data: string = response.data['fen'];
-        return data;                        
+        return response.data;                        
       } 
       catch (err) {
         const error = err as AxiosError;
@@ -40,8 +38,7 @@ export default class Engine {
       try {
         const response = await axios.get('https://raven-1-j8079958.deta.app/cb_state',
                                          { headers: {"Access-Control-Allow-Origin": "*"}});
-        let data: string = response.data['fen'];
-        return data;                        
+        return response.data;                        
       }
       catch (err) {
         const error = err as AxiosError;
