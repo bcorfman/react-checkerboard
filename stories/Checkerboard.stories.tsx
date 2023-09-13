@@ -52,11 +52,11 @@ ConfigurableBoard.args = {
 ///////////////////////////////////
 ////////// PlayVsRandom ///////////
 ///////////////////////////////////
-export const PlayVsRandom = async () => {
+export const PlayVsRandom = () => {
   const game = new Engine();
-  const checkers_fen = await game.init();
+  const [dropped, setDropped] = useState(false);
   const [currentTimeout, setCurrentTimeout] = useState<NodeJS.Timeout>();
-  const [gamePosition, setGamePosition] = useState<BoardPosition>();(convertPositionToObject(toChessFen(checkers_fen)));
+  const [gamePosition, setGamePosition] = useState<BoardPosition>();
 
   function safeGameMutate(modify) {
     setGamePosition((g) => {
@@ -66,47 +66,55 @@ export const PlayVsRandom = async () => {
     });
   }
 
-  async function makeRandomMove() {
-    const checkers_fen = await game.getCheckerboardState()['fen'];
-    const legal_moves = await game.legalMoves(checkers_fen);
-    const captures = legal_moves['captures'];
-    const moves = legal_moves['moves'];
-    const possibleMoves = captures.length > 0 ? captures: moves;
+  useEffect( () => {
+    async function init()
+    {
+      const checkers_fen = await game.init();
+    }
 
-    // exit if the game is over
-    if (possibleMoves.length === 0)
-      return;
-
-    const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-    safeGameMutate((game) => {
-      game.makeMove(possibleMoves[randomIndex]);
-    });
-  }
-
-  async function onDrop(sourceSquare, targetSquare, piece) {
-    const checkers_fen = await game.makeMove(SQUARE_MAP[sourceSquare], SQUARE_MAP[targetSquare])['fen'];
-    setGamePosition(convertPositionToObject(toChessFen(checkers_fen)));
-
-    // exit if the game is over
-    const legal_moves = await game.legalMoves(checkers_fen);
-    const captures = legal_moves['captures'];
-    const moves = legal_moves['moves'];
-    const possibleMoves = captures.length > 0 ? captures: moves;
-    if (possibleMoves.length === 0)
-      return false;
-
-    // store timeout so it can be cleared on undo/reset so computer doesn't execute move
-    const newTimeout = setTimeout(makeRandomMove, 200);
-    setCurrentTimeout(newTimeout);
-    return true;
-  }
+    async function makeRandomMove() {
+      const checkers_fen = await game.getCheckerboardState()['fen'];
+      const legal_moves = await game.legalMoves(checkers_fen);
+      const captures = legal_moves['captures'];
+      const moves = legal_moves['moves'];
+      const possibleMoves = captures.length > 0 ? captures: moves;
+  
+      // exit if the game is over
+      if (possibleMoves.length === 0)
+        return;
+  
+      const randomIndex = Math.floor(Math.random() * possibleMoves.length);
+      safeGameMutate((game) => {
+        game.makeMove(possibleMoves[randomIndex]);
+      });
+    }
+  
+    async function onDrop(sourceSquare, targetSquare, piece) {
+      const checkers_fen = await game.makeMove(SQUARE_MAP[sourceSquare], SQUARE_MAP[targetSquare])['fen'];
+      setGamePosition(convertPositionToObject(toChessFen(checkers_fen)));
+  
+      // exit if the game is over
+      const legal_moves = await game.legalMoves(checkers_fen);
+      const captures = legal_moves['captures'];
+      const moves = legal_moves['moves'];
+      const possibleMoves = captures.length > 0 ? captures: moves;
+      if (possibleMoves.length === 0)
+        setDropped(false);
+  
+      // store timeout so it can be cleared on undo/reset so computer doesn't execute move
+      const newTimeout = setTimeout(makeRandomMove, 200);
+      setCurrentTimeout(newTimeout);
+      setDropped(true);
+    }
+    init();
+  }, []);
 
   return (
     <div style={boardWrapper}>
       <Checkerboard
         id="PlayVsRandom"
         position={convertPositionToObject(toChessFen(game.getCheckerboardState()['fen']))}
-        onPieceDrop={onDrop}
+        onPieceDrop={ () => { return dropped; }}
         customBoardStyle={{
           borderRadius: "4px",
           boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
