@@ -29,7 +29,7 @@ export default class Engine {
       {
         const response = await axios.get('https://raven-1-j8079958.deta.app/cb_state',
                                          { headers: {"Access-Control-Allow-Origin": "*"}});
-        return response.data;                        
+        return response.data['fen'];                        
       } 
       catch (err) {
         const error = err as AxiosError;
@@ -55,6 +55,7 @@ export default class Engine {
                                           {startSq: startSquare.toString(), endSq: endSquare.toString()},
                                           { headers: {"Access-Control-Allow-Origin": "*"}});
         console.log("make_move: " + response.status.toString());
+        return response.data['fen'];
       }
       catch (err) {
         const error = err as AxiosError;

@@ -197,9 +197,9 @@ export function toChessFen(checkersFen: string): string {
 
 function objToFen(position: BoardPosition): string {
   let fen: string = "";
-  for (let row in BLACK_ROWS) {
-    for (let col in COLUMNS) {
-      const loc = col + row.toString();
+  for (let row of BLACK_ROWS) {
+    for (let col in BLACK_COLUMN_VALUES) {
+      const loc = col + (row+1).toString();
       const piece = position[loc as Square];
       if (piece === undefined) {
         fen += "1";
@@ -224,9 +224,10 @@ function checkersFenToObj(checkers_fen: string): BoardPosition {
   const white_tokens = rows[1].slice(1);
   const black_tokens = rows[2].slice(1);
   
-  for (let token in white_tokens.split(",")) {
-    const piece = token[0];
-    const loc = parseInt(token.slice(1), 10);
+  const white_nums = white_tokens.split(",");
+  for (let item of white_nums) {
+    const loc = parseInt(item, 10);
+    const piece = rows[1][0];
     if (piece === "W") {
       position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] = "wM"; 
     }
@@ -235,9 +236,10 @@ function checkersFenToObj(checkers_fen: string): BoardPosition {
     }
   }
 
-  for (let token in black_tokens.split(",")) {
-    const piece = token[0];
-    const loc = parseInt(token.slice(1), 10);
+  const black_nums = black_tokens.split(",");
+  for (let item of black_nums) {
+    const loc = parseInt(item, 10);
+    const piece = rows[2][0];
     if (piece === "B") {
       position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] = "bM"; 
     }

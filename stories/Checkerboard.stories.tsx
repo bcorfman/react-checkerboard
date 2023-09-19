@@ -54,6 +54,7 @@ ConfigurableBoard.args = {
 ///////////////////////////////////
 export const PlayVsRandom = () => {
   const game = new Engine();
+  const [checkersFEN, setCheckersFEN] = useState<string>();
   const [dropped, setDropped] = useState(false);
   const [currentTimeout, setCurrentTimeout] = useState<NodeJS.Timeout>();
   const [gamePosition, setGamePosition] = useState<BoardPosition>();
@@ -70,10 +71,17 @@ export const PlayVsRandom = () => {
     async function init()
     {
       const checkers_fen = await game.init();
+      setGamePosition(convertPositionToObject(toChessFen(checkers_fen)));
+      return async () => {
+        await game.terminate();
+      }
     }
+    init();
+  }, []);
 
+  useEffect( () => {
     async function makeRandomMove() {
-      const checkers_fen = await game.getCheckerboardState()['fen'];
+      let checkers_fen = await game.getCheckerboardState();
       const legal_moves = await game.legalMoves(checkers_fen);
       const captures = legal_moves['captures'];
       const moves = legal_moves['moves'];
@@ -84,13 +92,12 @@ export const PlayVsRandom = () => {
         return;
   
       const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-      safeGameMutate((game) => {
-        game.makeMove(possibleMoves[randomIndex]);
-      });
+      checkers_fen = await game.makeMove(possibleMoves[randomIndex][0], possibleMoves[randomIndex][1]);
+      return checkers_fen;
     }
-  
+
     async function onDrop(sourceSquare, targetSquare, piece) {
-      const checkers_fen = await game.makeMove(SQUARE_MAP[sourceSquare], SQUARE_MAP[targetSquare])['fen'];
+      const checkers_fen = await game.makeMove(SQUARE_MAP[sourceSquare], SQUARE_MAP[targetSquare]);
       setGamePosition(convertPositionToObject(toChessFen(checkers_fen)));
   
       // exit if the game is over
@@ -106,14 +113,13 @@ export const PlayVsRandom = () => {
       setCurrentTimeout(newTimeout);
       setDropped(true);
     }
-    init();
-  }, []);
+  }, [dropped]);
 
   return (
     <div style={boardWrapper}>
       <Checkerboard
         id="PlayVsRandom"
-        position={convertPositionToObject(toChessFen(game.getCheckerboardState()['fen']))}
+        position={gamePosition}
         onPieceDrop={ () => { return dropped; }}
         customBoardStyle={{
           borderRadius: "4px",
@@ -123,11 +129,9 @@ export const PlayVsRandom = () => {
       <button
         style={buttonStyle}
         onClick={() => {
-          safeGameMutate((game) => {
-            game.endSession();
-            game.createSession();
-          });
-          clearTimeout(currentTimeout);
+            game.terminate();
+            game.init();
+            clearTimeout(currentTimeout);
         }}
       >
         reset
