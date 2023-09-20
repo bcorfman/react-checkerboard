@@ -167,7 +167,7 @@ export const PlayVsComputer = () => {
   const [stockfishLevel, setStockfishLevel] = useState(2);
 
   function findBestMove() {
-    let checkers_fen = await game.getCheckerboardState();
+    let checkers_fen = ""; // await game.getCheckerboardState();
     game.evaluatePosition(game.fen(), stockfishLevel);
 
     game.onMessage(({ bestMove }) => {
