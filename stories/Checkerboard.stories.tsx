@@ -163,10 +163,11 @@ export const PlayVsComputer = () => {
   };
   const game = useMemo(() => new Engine(), []);
 
-  const [gamePosition, setGamePosition] = useState(game.fen());
+  const [gamePosition, setGamePosition] = useState<BoardPosition>();
   const [stockfishLevel, setStockfishLevel] = useState(2);
 
   function findBestMove() {
+    let checkers_fen = await game.getCheckerboardState();
     game.evaluatePosition(game.fen(), stockfishLevel);
 
     game.onMessage(({ bestMove }) => {
@@ -264,6 +265,7 @@ export const ClickToMove = () => {
   const [rightClickedSquares, setRightClickedSquares] = useState({});
   const [moveSquares, setMoveSquares] = useState({});
   const [optionSquares, setOptionSquares] = useState({});
+  const [gamePosition, setGamePosition] = useState<BoardPosition>();
 
   function safeGameMutate(modify) {
     setGame((g) => {
@@ -423,7 +425,7 @@ export const ClickToMove = () => {
         id="ClickToMove"
         animationDuration={200}
         arePiecesDraggable={false}
-        position={game.fen()}
+        position={gamePosition}
         onSquareClick={onSquareClick}
         onSquareRightClick={onSquareRightClick}
         onPromotionPieceSelect={onPromotionPieceSelect}
