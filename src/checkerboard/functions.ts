@@ -218,34 +218,35 @@ function objToFen(position: BoardPosition): string {
   return fen;
 };
 
+function parseTokens(player: string, tokens: string, position: BoardPosition)
+{
+  let piece = "";
+  const nums = tokens.split(",");
+  for (let item of nums) {
+    let loc = 0;
+    const player_char = player.slice(0, 1);
+    if (item.startsWith(player_char.toUpperCase())) {
+      piece = player_char + "M";
+      loc = parseInt(item.slice(1), 10);
+    } else if (item.startsWith("K")) {
+      piece = player_char + "K";
+      loc = parseInt(item.slice(1), 10);
+    }
+    else {
+      loc = parseInt(item);
+    }
+    position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] = piece as Piece; 
+  }
+  return position;
+}
+
 function checkersFenToObj(checkers_fen: string): BoardPosition {
   let position: BoardPosition = {};
   const rows = checkers_fen.split(":");
-  const white_tokens = rows[1].slice(1);
-  const black_tokens = rows[2].slice(1);
+  const white_tokens = rows[1];
+  const black_tokens = rows[2];
   
-  const white_nums = white_tokens.split(",");
-  for (let item of white_nums) {
-    const loc = parseInt(item, 10);
-    const piece = rows[1][0];
-    if (piece === "W") {
-      position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] = "wM"; 
-    }
-    else if (piece === "K") {
-      position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] == "wK";
-    }
-  }
-
-  const black_nums = black_tokens.split(",");
-  for (let item of black_nums) {
-    const loc = parseInt(item, 10);
-    const piece = rows[2][0];
-    if (piece === "B") {
-      position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] = "bM"; 
-    }
-    else if (piece === "K") {
-      position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] == "bK";
-    }
-  }
+  position = parseTokens("white", white_tokens, position);
+  position = parseTokens("black", black_tokens, position);
   return position;
 }
