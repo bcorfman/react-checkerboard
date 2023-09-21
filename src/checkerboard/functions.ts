@@ -1,11 +1,12 @@
-import { BoardOrientation, BoardPosition, Square, Piece } from "./types";
+import { BoardOrientation, BoardPosition, Square, Piece, CheckerSquare } from "./types";
 import { 
   BLACK_COLUMN_VALUES,
   BLACK_ROWS,
   COLUMNS,
   START_POSITION_OBJECT,
   WHITE_COLUMN_VALUES,
-  WHITE_ROWS
+  WHITE_ROWS,
+  CHECKER_SQUARE_MAP
  } from "./consts";
 
 /**
@@ -156,7 +157,7 @@ function isValidFen(fen: string): boolean {
 
   // check each section
   for (let i = 0; i < 8; i++) {
-    if (chunks[i].length !== 8 || chunks[i].search(/[^kqrnbpKQRNBP1]/) !== -1) {
+    if (chunks[i].length !== 8 || chunks[i].search(/[^kmKM1]/) !== -1) {
       return false;
     }
   }
@@ -188,4 +189,64 @@ function fenToPieceCode(piece: string): Piece {
   }
   // white piece
   return ("w" + piece.toUpperCase()) as Piece;
+}
+
+export function toChessFen(checkersFen: string): string {
+  return objToFen(checkersFenToObj(checkersFen));
+}
+
+function objToFen(position: BoardPosition): string {
+  let fen: string = "";
+  for (let row of BLACK_ROWS) {
+    for (let col in BLACK_COLUMN_VALUES) {
+      const loc = col + (row+1).toString();
+      const piece = position[loc as Square];
+      if (piece === undefined) {
+        fen += "1";
+      } else if (piece === "bK") {
+        fen += "k";
+      } else if (piece === "bM") {
+        fen += "m"
+      } else if (piece === "wK") {
+        fen += "K";
+      } else if (piece === "wM") {
+        fen += "M";
+      }
+    }
+      fen += "/";
+  }
+  return fen.slice(0, -1);
+};
+
+function parseTokens(player: string, tokens: string, position: BoardPosition)
+{
+  let piece = "";
+  const nums = tokens.split(",");
+  for (let item of nums) {
+    let loc = 0;
+    const player_char = player.slice(0, 1);
+    if (item.startsWith(player_char.toUpperCase())) {
+      piece = player_char + "M";
+      loc = parseInt(item.slice(1), 10);
+    } else if (item.startsWith("K")) {
+      piece = player_char + "K";
+      loc = parseInt(item.slice(1), 10);
+    }
+    else {
+      loc = parseInt(item);
+    }
+    position[CHECKER_SQUARE_MAP[loc as CheckerSquare] as Square] = piece as Piece; 
+  }
+  return position;
+}
+
+function checkersFenToObj(checkers_fen: string): BoardPosition {
+  let position: BoardPosition = {};
+  const rows = checkers_fen.split(":");
+  const white_tokens = rows[1];
+  const black_tokens = rows[2];
+  
+  position = parseTokens("white", white_tokens, position);
+  position = parseTokens("black", black_tokens, position);
+  return position;
 }
