@@ -157,7 +157,7 @@ function isValidFen(fen: string): boolean {
 
   // check each section
   for (let i = 0; i < 8; i++) {
-    if (chunks[i].length !== 8 || chunks[i].search(/[^kqrnbpKQRNBP1]/) !== -1) {
+    if (chunks[i].length !== 8 || chunks[i].search(/[^kmKM1]/) !== -1) {
       return false;
     }
   }
@@ -215,7 +215,7 @@ function objToFen(position: BoardPosition): string {
     }
       fen += "/";
   }
-  return fen;
+  return fen.slice(0, -1);
 };
 
 function parseTokens(player: string, tokens: string, position: BoardPosition)
