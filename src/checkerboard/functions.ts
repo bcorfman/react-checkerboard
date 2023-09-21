@@ -110,8 +110,8 @@ export function convertPositionToObject(
 /**
  * Converts a fen string to a position object.
  */
-function fenToObj(fen: string): BoardPosition {
-  if (!isValidFen(fen)) return {};
+export function fenToObj(fen: string): BoardPosition {
+  if (!isValidFen(fen)) return {} as BoardPosition;
 
   // cut off any move, castling, etc info from the end. we're only interested in position information
   fen = fen.replace(/ .+$/, "");
