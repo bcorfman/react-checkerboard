@@ -197,8 +197,8 @@ export function toChessFen(checkersFen: string): string {
 
 function objToFen(position: BoardPosition): string {
   let fen: string = "";
-  for (let row of BLACK_ROWS) {
-    for (let col in BLACK_COLUMN_VALUES) {
+  for (let row of WHITE_ROWS) {
+    for (let col in WHITE_COLUMN_VALUES) {
       const loc = col + (row+1).toString();
       const piece = position[loc as Square];
       if (piece === undefined) {
