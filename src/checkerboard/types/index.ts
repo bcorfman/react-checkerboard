@@ -251,7 +251,7 @@ export type CheckerboardProps = {
     sourceSquare: Square,
     targetSquare: Square,
     piece: Piece
-  ) => boolean;
+  ) => Promise<boolean>;
   /**
    * User function that is run when piece is dropped. Must return whether the move results in a promotion or not.
    * @default (sourceSquare, targetSquare, piece) => (((piece === "wP" && sourceSquare[1] === "7" && targetSquare[1] === "8") || 
