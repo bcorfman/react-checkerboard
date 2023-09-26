@@ -39,7 +39,7 @@ export default class Engine {
   
     async legalMoves(fen: string) {
       try {
-        const response = await axios.get('https://raven-1-j8079958.deta.app/cb_state',
+        const response = await axios.get('https://raven-1-j8079958.deta.app/legal_moves',
                                          { headers: {"Access-Control-Allow-Origin": "*"}});
         return response.data;                        
       }
@@ -51,8 +51,9 @@ export default class Engine {
   
     async makeMove(startSquare: number, endSquare: number) {
       try {
-        const response = await axios.post('https://raven-1-j8079958.deta.app/make_move', 
-                                          {startSq: startSquare.toString(), endSq: endSquare.toString()},
+        const response = await axios.post('https://raven-1-j8079958.deta.app/make_move?start_sq=' + 
+                                          startSquare.toString() + '&end_sq=' + endSquare.toString(), 
+                                          {}, 
                                           { headers: {"Access-Control-Allow-Origin": "*"}});
         console.log("make_move: " + response.status.toString());
         return response.data['fen'];
