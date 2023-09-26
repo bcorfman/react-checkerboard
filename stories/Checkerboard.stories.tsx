@@ -63,6 +63,8 @@ export const PlayVsRandom = ({dropped, setDropped }) => {
     {
       const checkers_fen = await game.init();
       setGamePosition(convertPositionToObject(toChessFen(checkers_fen)));
+      console.log('init setGamePosition');
+
       return async () => {
         await game.terminate();
       }
@@ -82,36 +84,42 @@ export const PlayVsRandom = ({dropped, setDropped }) => {
       } else {
         possibleMoves = moves;
       }
-  
+      console.log('makeRandomMove possibleMoves' + possibleMoves.toString());
+
       // exit if the game is over
       if (possibleMoves.length === 0)
         return;
   
       const randomIndex = Math.floor(Math.random() * possibleMoves.length);
       checkers_fen = await game.makeMove(possibleMoves[randomIndex][0], possibleMoves[randomIndex][1]);
+      console.log('makeRandomMove makeMove ' + checkers_fen);
       setGamePosition(convertPositionToObject(toChessFen(checkers_fen)));
+      console.log('makeRandomMove setGamePosition');
     }
 
     makeRandomMove();
   }, [currentTimeout]);
 
-  useEffect( () => {
-    async function onDrop(sourceSquare, targetSquare, piece) {
+  async function onDrop(sourceSquare, targetSquare, piece) {
+      console.log('OnDrop ' + sourceSquare.toString() + " " + targetSquare.toString() + " " + piece.toString());
       const checkers_fen = await game.makeMove(SQUARE_MAP[sourceSquare], SQUARE_MAP[targetSquare]);
+      console.log('OnDrop ' + checkers_fen);
       setGamePosition(convertPositionToObject(toChessFen(checkers_fen)));
-
+      console.log('onDrop setGamePosition');
+      
       // store timeout so it can be cleared on undo/reset so computer doesn't execute move
       const newTimeout = setTimeout(() => setMoved(true), 200);
       setCurrentTimeout(newTimeout);
-    }
-  }, [dropped]);
+      console.log('onDrop setCurrentTimeout');
+      return true;
+  }
 
   return (
     <div style={boardWrapper}>
       <Checkerboard
         id="PlayVsRandom"
         position={gamePosition}
-        onPieceDrop={() => setDropped(true)}
+        onPieceDrop={onDrop}
         customBoardStyle={{
           borderRadius: "4px",
           boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
